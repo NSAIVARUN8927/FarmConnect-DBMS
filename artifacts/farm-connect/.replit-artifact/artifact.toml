@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Farm Connect"
+description = "An agricultural marketplace connecting Indian farmers and businesses with searchable produce listings, farm management, buyer messaging, negotiations, and order tracking."
+version = "1.0.0"
+id = "artifacts/farm-connect"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18364
+
+[services.development]
+run = "pnpm --filter @workspace/farm-connect run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/farm-connect", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/farm-connect/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18364"
+BASE_PATH = "/"

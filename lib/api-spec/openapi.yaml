@@ -3,13 +3,27 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Farm Connect agricultural marketplace API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: marketplace
+    description: Public marketplace and product operations
+  - name: account
+    description: Signed-in account operations
+  - name: farms
+    description: Farmer farm management
+  - name: orders
+    description: Buyer and farmer order lifecycle
+  - name: negotiations
+    description: Product price negotiations
+  - name: messages
+    description: Farmer and buyer conversations
+  - name: dashboard
+    description: Role-specific dashboard summaries
 paths:
   /healthz:
     get:
@@ -24,8 +38,448 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /marketplace/overview:
+    get:
+      operationId: getMarketplaceOverview
+      tags: [marketplace]
+      summary: Get marketplace counts and featured products
+      responses:
+        "200":
+          description: Marketplace overview
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MarketplaceOverview"
+  /products:
+    get:
+      operationId: listProducts
+      tags: [marketplace]
+      summary: Search and filter available products
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: category
+          schema: { type: string }
+        - in: query
+          name: location
+          schema: { type: string }
+        - in: query
+          name: organic
+          schema: { type: boolean }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 50, default: 24 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        "200":
+          description: Matching marketplace products
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Product" }
+    post:
+      operationId: createProduct
+      tags: [marketplace]
+      summary: Create a product listing for the signed-in farmer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProductInput" }
+      responses:
+        "201":
+          description: Created listing
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Product" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /products/{productId}:
+    parameters:
+      - in: path
+        name: productId
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: getProduct
+      tags: [marketplace]
+      summary: Get a product and its public farmer details
+      responses:
+        "200":
+          description: Product details
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Product" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      operationId: updateProduct
+      tags: [marketplace]
+      summary: Update a listing owned by the signed-in farmer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProductUpdate" }
+      responses:
+        "200":
+          description: Updated listing
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Product" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      operationId: deleteProduct
+      tags: [marketplace]
+      summary: Delete a listing owned by the signed-in farmer
+      responses:
+        "204": { description: Listing deleted }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /me:
+    get:
+      operationId: getMyProfile
+      tags: [account]
+      summary: Get or create the signed-in user's profile
+      responses:
+        "200":
+          description: Current user's profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserProfile" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    put:
+      operationId: completeMyProfile
+      tags: [account]
+      summary: Complete farmer or business onboarding
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ProfileInput" }
+      responses:
+        "200":
+          description: Saved profile
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserProfile" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /farms:
+    get:
+      operationId: listFarms
+      tags: [farms]
+      summary: List farms visible to the signed-in user
+      responses:
+        "200":
+          description: Farms
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Farm" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      operationId: createFarm
+      tags: [farms]
+      summary: Create a farm owned by the signed-in farmer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/FarmInput" }
+      responses:
+        "201":
+          description: Created farm
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Farm" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /farms/{farmId}:
+    parameters:
+      - in: path
+        name: farmId
+        required: true
+        schema: { type: integer }
+    patch:
+      operationId: updateFarm
+      tags: [farms]
+      summary: Update a farm owned by the signed-in farmer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/FarmUpdate" }
+      responses:
+        "200":
+          description: Updated farm
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Farm" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      operationId: deleteFarm
+      tags: [farms]
+      summary: Delete a farm owned by the signed-in farmer
+      responses:
+        "204": { description: Farm deleted }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /dashboard:
+    get:
+      operationId: getDashboard
+      tags: [dashboard]
+      summary: Get a role-specific dashboard summary
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/DashboardSummary" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /orders:
+    get:
+      operationId: listOrders
+      tags: [orders]
+      summary: List orders related to the signed-in user
+      responses:
+        "200":
+          description: User's related orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Order" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      operationId: createOrder
+      tags: [orders]
+      summary: Place an order for an available product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OrderInput" }
+      responses:
+        "201":
+          description: Order created with payment pending
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Order" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /orders/{orderId}/status:
+    parameters:
+      - in: path
+        name: orderId
+        required: true
+        schema: { type: integer }
+    patch:
+      operationId: updateOrderStatus
+      tags: [orders]
+      summary: Advance or cancel an order the user participates in
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/OrderStatusInput" }
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Order" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /orders/{orderId}/demo-payment:
+    parameters:
+      - in: path
+        name: orderId
+        required: true
+        schema: { type: integer }
+    post:
+      operationId: createDemoPayment
+      tags: [orders]
+      summary: Complete a clearly marked development sandbox payment
+      responses:
+        "200":
+          description: Demo payment result
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Order" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /negotiations:
+    get:
+      operationId: listNegotiations
+      tags: [negotiations]
+      summary: List negotiations involving the signed-in user
+      responses:
+        "200":
+          description: Related negotiations
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Negotiation" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      operationId: createNegotiation
+      tags: [negotiations]
+      summary: Propose a price and quantity for a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NegotiationInput" }
+      responses:
+        "201":
+          description: Negotiation created
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Negotiation" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /negotiations/{negotiationId}:
+    parameters:
+      - in: path
+        name: negotiationId
+        required: true
+        schema: { type: integer }
+    patch:
+      operationId: respondToNegotiation
+      tags: [negotiations]
+      summary: Accept, reject, or counter a negotiation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/NegotiationResponseInput" }
+      responses:
+        "200":
+          description: Updated negotiation
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Negotiation" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /conversations:
+    get:
+      operationId: listConversations
+      tags: [messages]
+      summary: List conversations involving the signed-in user
+      responses:
+        "200":
+          description: Conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Conversation" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+    post:
+      operationId: startConversation
+      tags: [messages]
+      summary: Start a conversation about a product
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ConversationInput" }
+      responses:
+        "201":
+          description: Conversation created or existing conversation returned
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Conversation" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+  /conversations/{conversationId}/messages:
+    parameters:
+      - in: path
+        name: conversationId
+        required: true
+        schema: { type: integer }
+    get:
+      operationId: listMessages
+      tags: [messages]
+      summary: Read messages in a conversation the user participates in
+      responses:
+        "200":
+          description: Conversation messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/Message" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      operationId: sendMessage
+      tags: [messages]
+      summary: Send a message in a conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/MessageInput" }
+      responses:
+        "201":
+          description: Sent message
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Message" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /storage/uploads/request-url:
+    post:
+      operationId: requestUploadUrl
+      tags: [account]
+      summary: Request an authenticated image upload URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/UploadInput" }
+      responses:
+        "200":
+          description: Upload URL and object path
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UploadUrl" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
 components:
+  responses:
+    BadRequest:
+      description: Invalid request or insufficient product quantity
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unauthorized:
+      description: Sign-in required
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Forbidden:
+      description: Role or resource ownership does not permit this action
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
   schemas:
+    Error:
+      type: object
+      properties:
+        error: { type: string }
+      required: [error]
     HealthStatus:
       type: object
       properties:
@@ -33,4 +487,240 @@ components:
           type: string
       required:
         - status
+    Role:
+      type: ["string", "null"]
+      enum: [farmer, business, admin, null]
+    UserProfile:
+      type: object
+      properties:
+        id: { type: integer }
+        displayName: { type: string }
+        role: { $ref: "#/components/schemas/Role" }
+        location: { type: ["string", "null"] }
+        businessName: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+      required: [id, displayName, role, location, businessName, createdAt]
+    ProfileInput:
+      type: object
+      properties:
+        role: { type: string, enum: [farmer, business] }
+        displayName: { type: string, minLength: 2, maxLength: 100 }
+        location: { type: string, maxLength: 160 }
+        businessName: { type: ["string", "null"], maxLength: 140 }
+      required: [role, displayName, location]
+    Product:
+      type: object
+      properties:
+        id: { type: integer }
+        farmId: { type: ["integer", "null"] }
+        farmerId: { type: integer }
+        farmerName: { type: string }
+        farmName: { type: ["string", "null"] }
+        name: { type: string }
+        category: { type: string }
+        description: { type: string }
+        unit: { type: string }
+        quantity: { type: number }
+        pricePerUnit: { type: number }
+        location: { type: string }
+        organic: { type: boolean }
+        quality: { type: ["string", "null"] }
+        harvestDate: { type: ["string", "null"], format: date }
+        imageUrl: { type: ["string", "null"] }
+        available: { type: boolean }
+        createdAt: { type: string, format: date-time }
+      required: [id, farmId, farmerId, farmerName, farmName, name, category, description, unit, quantity, pricePerUnit, location, organic, quality, harvestDate, imageUrl, available, createdAt]
+    ProductInput:
+      type: object
+      properties:
+        farmId: { type: ["integer", "null"] }
+        name: { type: string, minLength: 2, maxLength: 100 }
+        category: { type: string, minLength: 2, maxLength: 60 }
+        description: { type: string, maxLength: 1000 }
+        unit: { type: string, maxLength: 20 }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        pricePerUnit: { type: number, exclusiveMinimum: 0 }
+        location: { type: string, maxLength: 160 }
+        organic: { type: boolean }
+        quality: { type: ["string", "null"], maxLength: 80 }
+        harvestDate: { type: ["string", "null"], format: date }
+        imageUrl: { type: ["string", "null"], format: uri }
+      required: [name, category, description, unit, quantity, pricePerUnit, location, organic]
+    ProductUpdate:
+      type: object
+      properties:
+        farmId: { type: ["integer", "null"] }
+        name: { type: string, minLength: 2, maxLength: 100 }
+        category: { type: string, minLength: 2, maxLength: 60 }
+        description: { type: string, maxLength: 1000 }
+        unit: { type: string, maxLength: 20 }
+        quantity: { type: number, minimum: 0 }
+        pricePerUnit: { type: number, exclusiveMinimum: 0 }
+        location: { type: string, maxLength: 160 }
+        organic: { type: boolean }
+        quality: { type: ["string", "null"], maxLength: 80 }
+        harvestDate: { type: ["string", "null"], format: date }
+        imageUrl: { type: ["string", "null"], format: uri }
+        available: { type: boolean }
+    Farm:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        location: { type: string }
+        acres: { type: number }
+        soilType: { type: ["string", "null"] }
+        irrigation: { type: ["string", "null"] }
+        crops: { type: array, items: { type: string } }
+        imageUrl: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+      required: [id, name, location, acres, soilType, irrigation, crops, imageUrl, createdAt]
+    FarmInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 2, maxLength: 100 }
+        location: { type: string, minLength: 2, maxLength: 160 }
+        acres: { type: number, exclusiveMinimum: 0 }
+        soilType: { type: ["string", "null"] }
+        irrigation: { type: ["string", "null"] }
+        crops: { type: array, items: { type: string }, maxItems: 20 }
+        imageUrl: { type: ["string", "null"], format: uri }
+      required: [name, location, acres]
+    FarmUpdate:
+      type: object
+      properties:
+        name: { type: string, minLength: 2, maxLength: 100 }
+        location: { type: string, minLength: 2, maxLength: 160 }
+        acres: { type: number, exclusiveMinimum: 0 }
+        soilType: { type: ["string", "null"] }
+        irrigation: { type: ["string", "null"] }
+        crops: { type: array, items: { type: string }, maxItems: 20 }
+        imageUrl: { type: ["string", "null"], format: uri }
+    MarketplaceOverview:
+      type: object
+      properties:
+        farmers: { type: integer }
+        businesses: { type: integer }
+        products: { type: integer }
+        transactions: { type: integer }
+        featuredProducts:
+          type: array
+          items: { $ref: "#/components/schemas/Product" }
+      required: [farmers, businesses, products, transactions, featuredProducts]
+    DashboardSummary:
+      type: object
+      properties:
+        role: { $ref: "#/components/schemas/Role" }
+        activeOrders: { type: integer }
+        completedOrders: { type: integer }
+        listings: { type: integer }
+        farms: { type: integer }
+        pendingNegotiations: { type: integer }
+        salesValue: { type: number }
+        recentOrders:
+          type: array
+          items: { $ref: "#/components/schemas/Order" }
+      required: [role, activeOrders, completedOrders, listings, farms, pendingNegotiations, salesValue, recentOrders]
+    Order:
+      type: object
+      properties:
+        id: { type: integer }
+        productId: { type: integer }
+        productName: { type: string }
+        buyerId: { type: integer }
+        buyerName: { type: string }
+        farmerId: { type: integer }
+        farmerName: { type: string }
+        quantity: { type: number }
+        unit: { type: string }
+        pricePerUnit: { type: number }
+        totalAmount: { type: number }
+        status: { type: string, enum: [payment_pending, confirmed, processing, ready, completed, cancelled] }
+        paymentStatus: { type: string, enum: [pending, successful, failed] }
+        paymentReference: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+      required: [id, productId, productName, buyerId, buyerName, farmerId, farmerName, quantity, unit, pricePerUnit, totalAmount, status, paymentStatus, paymentReference, notes, createdAt]
+    OrderInput:
+      type: object
+      properties:
+        productId: { type: integer }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        notes: { type: ["string", "null"], maxLength: 500 }
+      required: [productId, quantity]
+    OrderStatusInput:
+      type: object
+      properties:
+        status: { type: string, enum: [confirmed, processing, ready, completed, cancelled] }
+      required: [status]
+    Negotiation:
+      type: object
+      properties:
+        id: { type: integer }
+        productId: { type: integer }
+        productName: { type: string }
+        buyerId: { type: integer }
+        buyerName: { type: string }
+        farmerId: { type: integer }
+        farmerName: { type: string }
+        quantity: { type: number }
+        unit: { type: string }
+        proposedPrice: { type: number }
+        status: { type: string, enum: [pending, countered, accepted, rejected, cancelled] }
+        updatedAt: { type: string, format: date-time }
+      required: [id, productId, productName, buyerId, buyerName, farmerId, farmerName, quantity, unit, proposedPrice, status, updatedAt]
+    NegotiationInput:
+      type: object
+      properties:
+        productId: { type: integer }
+        quantity: { type: number, exclusiveMinimum: 0 }
+        proposedPrice: { type: number, exclusiveMinimum: 0 }
+      required: [productId, quantity, proposedPrice]
+    NegotiationResponseInput:
+      type: object
+      properties:
+        action: { type: string, enum: [counter, accept, reject] }
+        proposedPrice: { type: ["number", "null"], exclusiveMinimum: 0 }
+      required: [action]
+    Conversation:
+      type: object
+      properties:
+        id: { type: integer }
+        productId: { type: integer }
+        productName: { type: string }
+        otherUserName: { type: string }
+        updatedAt: { type: string, format: date-time }
+      required: [id, productId, productName, otherUserName, updatedAt]
+    ConversationInput:
+      type: object
+      properties:
+        productId: { type: integer }
+      required: [productId]
+    Message:
+      type: object
+      properties:
+        id: { type: integer }
+        senderId: { type: integer }
+        senderName: { type: string }
+        body: { type: string }
+        createdAt: { type: string, format: date-time }
+      required: [id, senderId, senderName, body, createdAt]
+    MessageInput:
+      type: object
+      properties:
+        body: { type: string, minLength: 1, maxLength: 2000 }
+      required: [body]
+    UploadInput:
+      type: object
+      properties:
+        name: { type: string, minLength: 1, maxLength: 255 }
+        size: { type: integer, minimum: 1, maximum: 10485760 }
+        contentType: { type: string, enum: [image/jpeg, image/png, image/webp] }
+      required: [name, size, contentType]
+    UploadUrl:
+      type: object
+      properties:
+        uploadURL: { type: string, format: uri }
+        objectPath: { type: string }
+      required: [uploadURL, objectPath]
 
