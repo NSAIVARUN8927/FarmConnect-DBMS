@@ -20,6 +20,16 @@ export const HealthCheckResponse = zod.object({
 /**
  * @summary Get marketplace counts and featured products
  */
+export const getMarketplaceOverviewResponseFeaturedProductsItemCropVarietyMax = 100;
+
+export const getMarketplaceOverviewResponseFeaturedProductsItemCultivationMethodMax = 120;
+
+export const getMarketplaceOverviewResponseFeaturedProductsItemGrowthStageMax = 60;
+
+export const getMarketplaceOverviewResponseFeaturedProductsItemStorageNotesMax = 500;
+
+
+
 export const GetMarketplaceOverviewResponse = zod.object({
   "farmers": zod.number().int(),
   "businesses": zod.number().int(),
@@ -41,6 +51,11 @@ export const GetMarketplaceOverviewResponse = zod.object({
   "organic": zod.boolean(),
   "quality": zod.string().nullable(),
   "harvestDate": zod.coerce.date().nullable(),
+  "cropVariety": zod.string().max(getMarketplaceOverviewResponseFeaturedProductsItemCropVarietyMax).nullable(),
+  "plantingDate": zod.coerce.date().nullable(),
+  "cultivationMethod": zod.string().max(getMarketplaceOverviewResponseFeaturedProductsItemCultivationMethodMax).nullable(),
+  "growthStage": zod.string().max(getMarketplaceOverviewResponseFeaturedProductsItemGrowthStageMax).nullable(),
+  "storageNotes": zod.string().max(getMarketplaceOverviewResponseFeaturedProductsItemStorageNotesMax).nullable(),
   "imageUrl": zod.string().nullable(),
   "available": zod.boolean(),
   "createdAt": zod.coerce.date()
@@ -68,6 +83,16 @@ export const ListProductsQueryParams = zod.object({
   "offset": zod.coerce.number().int().min(listProductsQueryOffsetMin).default(listProductsQueryOffsetDefault)
 })
 
+export const listProductsResponseCropVarietyMax = 100;
+
+export const listProductsResponseCultivationMethodMax = 120;
+
+export const listProductsResponseGrowthStageMax = 60;
+
+export const listProductsResponseStorageNotesMax = 500;
+
+
+
 export const ListProductsResponseItem = zod.object({
   "id": zod.number().int(),
   "farmId": zod.number().int().nullable(),
@@ -84,6 +109,11 @@ export const ListProductsResponseItem = zod.object({
   "organic": zod.boolean(),
   "quality": zod.string().nullable(),
   "harvestDate": zod.coerce.date().nullable(),
+  "cropVariety": zod.string().max(listProductsResponseCropVarietyMax).nullable(),
+  "plantingDate": zod.coerce.date().nullable(),
+  "cultivationMethod": zod.string().max(listProductsResponseCultivationMethodMax).nullable(),
+  "growthStage": zod.string().max(listProductsResponseGrowthStageMax).nullable(),
+  "storageNotes": zod.string().max(listProductsResponseStorageNotesMax).nullable(),
   "imageUrl": zod.string().nullable(),
   "available": zod.boolean(),
   "createdAt": zod.coerce.date()
@@ -112,6 +142,14 @@ export const createProductBodyLocationMax = 160;
 
 export const createProductBodyQualityMax = 80;
 
+export const createProductBodyCropVarietyMax = 100;
+
+export const createProductBodyCultivationMethodMax = 120;
+
+export const createProductBodyGrowthStageMax = 60;
+
+export const createProductBodyStorageNotesMax = 500;
+
 
 
 export const CreateProductBody = zod.object({
@@ -126,8 +164,23 @@ export const CreateProductBody = zod.object({
   "organic": zod.boolean(),
   "quality": zod.string().max(createProductBodyQualityMax).nullish(),
   "harvestDate": zod.coerce.date().nullish(),
-  "imageUrl": zod.string().url().nullish()
+  "imageUrl": zod.string().url().nullish(),
+  "cropVariety": zod.string().max(createProductBodyCropVarietyMax).nullish(),
+  "plantingDate": zod.coerce.date().nullish(),
+  "cultivationMethod": zod.string().max(createProductBodyCultivationMethodMax).nullish(),
+  "growthStage": zod.string().max(createProductBodyGrowthStageMax).nullish(),
+  "storageNotes": zod.string().max(createProductBodyStorageNotesMax).nullish()
 })
+
+export const createProductResponseCropVarietyMax = 100;
+
+export const createProductResponseCultivationMethodMax = 120;
+
+export const createProductResponseGrowthStageMax = 60;
+
+export const createProductResponseStorageNotesMax = 500;
+
+
 
 export const CreateProductResponse = zod.object({
   "id": zod.number().int(),
@@ -145,6 +198,11 @@ export const CreateProductResponse = zod.object({
   "organic": zod.boolean(),
   "quality": zod.string().nullable(),
   "harvestDate": zod.coerce.date().nullable(),
+  "cropVariety": zod.string().max(createProductResponseCropVarietyMax).nullable(),
+  "plantingDate": zod.coerce.date().nullable(),
+  "cultivationMethod": zod.string().max(createProductResponseCultivationMethodMax).nullable(),
+  "growthStage": zod.string().max(createProductResponseGrowthStageMax).nullable(),
+  "storageNotes": zod.string().max(createProductResponseStorageNotesMax).nullable(),
   "imageUrl": zod.string().nullable(),
   "available": zod.boolean(),
   "createdAt": zod.coerce.date()
@@ -157,6 +215,16 @@ export const CreateProductResponse = zod.object({
 export const GetProductParams = zod.object({
   "productId": zod.coerce.number().int()
 })
+
+export const getProductResponseCropVarietyMax = 100;
+
+export const getProductResponseCultivationMethodMax = 120;
+
+export const getProductResponseGrowthStageMax = 60;
+
+export const getProductResponseStorageNotesMax = 500;
+
+
 
 export const GetProductResponse = zod.object({
   "id": zod.number().int(),
@@ -174,6 +242,11 @@ export const GetProductResponse = zod.object({
   "organic": zod.boolean(),
   "quality": zod.string().nullable(),
   "harvestDate": zod.coerce.date().nullable(),
+  "cropVariety": zod.string().max(getProductResponseCropVarietyMax).nullable(),
+  "plantingDate": zod.coerce.date().nullable(),
+  "cultivationMethod": zod.string().max(getProductResponseCultivationMethodMax).nullable(),
+  "growthStage": zod.string().max(getProductResponseGrowthStageMax).nullable(),
+  "storageNotes": zod.string().max(getProductResponseStorageNotesMax).nullable(),
   "imageUrl": zod.string().nullable(),
   "available": zod.boolean(),
   "createdAt": zod.coerce.date()
@@ -205,6 +278,14 @@ export const updateProductBodyLocationMax = 160;
 
 export const updateProductBodyQualityMax = 80;
 
+export const updateProductBodyCropVarietyMax = 100;
+
+export const updateProductBodyCultivationMethodMax = 120;
+
+export const updateProductBodyGrowthStageMax = 60;
+
+export const updateProductBodyStorageNotesMax = 500;
+
 
 
 export const UpdateProductBody = zod.object({
@@ -220,8 +301,23 @@ export const UpdateProductBody = zod.object({
   "quality": zod.string().max(updateProductBodyQualityMax).nullish(),
   "harvestDate": zod.coerce.date().nullish(),
   "imageUrl": zod.string().url().nullish(),
+  "cropVariety": zod.string().max(updateProductBodyCropVarietyMax).nullish(),
+  "plantingDate": zod.coerce.date().nullish(),
+  "cultivationMethod": zod.string().max(updateProductBodyCultivationMethodMax).nullish(),
+  "growthStage": zod.string().max(updateProductBodyGrowthStageMax).nullish(),
+  "storageNotes": zod.string().max(updateProductBodyStorageNotesMax).nullish(),
   "available": zod.boolean().optional()
 })
+
+export const updateProductResponseCropVarietyMax = 100;
+
+export const updateProductResponseCultivationMethodMax = 120;
+
+export const updateProductResponseGrowthStageMax = 60;
+
+export const updateProductResponseStorageNotesMax = 500;
+
+
 
 export const UpdateProductResponse = zod.object({
   "id": zod.number().int(),
@@ -239,6 +335,11 @@ export const UpdateProductResponse = zod.object({
   "organic": zod.boolean(),
   "quality": zod.string().nullable(),
   "harvestDate": zod.coerce.date().nullable(),
+  "cropVariety": zod.string().max(updateProductResponseCropVarietyMax).nullable(),
+  "plantingDate": zod.coerce.date().nullable(),
+  "cultivationMethod": zod.string().max(updateProductResponseCultivationMethodMax).nullable(),
+  "growthStage": zod.string().max(updateProductResponseGrowthStageMax).nullable(),
+  "storageNotes": zod.string().max(updateProductResponseStorageNotesMax).nullable(),
   "imageUrl": zod.string().nullable(),
   "available": zod.boolean(),
   "createdAt": zod.coerce.date()
@@ -402,6 +503,146 @@ export const DeleteFarmParams = zod.object({
 })
 
 export const DeleteFarmResponse = zod.void()
+
+
+/**
+ * @summary List farmer billing details owned by the signed-in business
+ */
+export const ListBillingFarmerDetailsResponseItem = zod.object({
+  "id": zod.number().int(),
+  "farmerName": zod.string(),
+  "farmName": zod.string().nullable(),
+  "gstin": zod.string().nullable(),
+  "billingAddress": zod.string(),
+  "state": zod.string(),
+  "postalCode": zod.string(),
+  "contactPhone": zod.string().nullable(),
+  "contactEmail": zod.string().nullable(),
+  "notes": zod.string().nullable(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+export const ListBillingFarmerDetailsResponse = zod.array(ListBillingFarmerDetailsResponseItem)
+
+
+/**
+ * @summary Add a farmer billing contact for the signed-in business
+ */
+export const createBillingFarmerDetailsBodyFarmerNameMin = 2;
+export const createBillingFarmerDetailsBodyFarmerNameMax = 120;
+
+export const createBillingFarmerDetailsBodyFarmNameMax = 120;
+
+export const createBillingFarmerDetailsBodyGstinMax = 15;
+
+
+export const createBillingFarmerDetailsBodyGstinRegExp = new RegExp('^[A-Za-z0-9]{15}$');
+export const createBillingFarmerDetailsBodyBillingAddressMin = 5;
+export const createBillingFarmerDetailsBodyBillingAddressMax = 500;
+
+export const createBillingFarmerDetailsBodyStateMin = 2;
+export const createBillingFarmerDetailsBodyStateMax = 80;
+
+export const createBillingFarmerDetailsBodyPostalCodeRegExp = new RegExp('^[0-9]{6}$');
+export const createBillingFarmerDetailsBodyContactPhoneMax = 24;
+
+export const createBillingFarmerDetailsBodyNotesMax = 500;
+
+
+
+export const CreateBillingFarmerDetailsBody = zod.object({
+  "farmerName": zod.string().min(createBillingFarmerDetailsBodyFarmerNameMin).max(createBillingFarmerDetailsBodyFarmerNameMax),
+  "farmName": zod.string().max(createBillingFarmerDetailsBodyFarmNameMax).nullish(),
+  "gstin": zod.string().max(createBillingFarmerDetailsBodyGstinMax).regex(createBillingFarmerDetailsBodyGstinRegExp).nullish(),
+  "billingAddress": zod.string().min(createBillingFarmerDetailsBodyBillingAddressMin).max(createBillingFarmerDetailsBodyBillingAddressMax),
+  "state": zod.string().min(createBillingFarmerDetailsBodyStateMin).max(createBillingFarmerDetailsBodyStateMax),
+  "postalCode": zod.string().regex(createBillingFarmerDetailsBodyPostalCodeRegExp),
+  "contactPhone": zod.string().max(createBillingFarmerDetailsBodyContactPhoneMax).nullish(),
+  "contactEmail": zod.string().email().nullish(),
+  "notes": zod.string().max(createBillingFarmerDetailsBodyNotesMax).nullish()
+})
+
+export const CreateBillingFarmerDetailsResponse = zod.object({
+  "id": zod.number().int(),
+  "farmerName": zod.string(),
+  "farmName": zod.string().nullable(),
+  "gstin": zod.string().nullable(),
+  "billingAddress": zod.string(),
+  "state": zod.string(),
+  "postalCode": zod.string(),
+  "contactPhone": zod.string().nullable(),
+  "contactEmail": zod.string().nullable(),
+  "notes": zod.string().nullable(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Update farmer billing details owned by the signed-in business
+ */
+export const UpdateBillingFarmerDetailsParams = zod.object({
+  "billingDetailsId": zod.coerce.number().int()
+})
+
+export const updateBillingFarmerDetailsBodyFarmerNameMin = 2;
+export const updateBillingFarmerDetailsBodyFarmerNameMax = 120;
+
+export const updateBillingFarmerDetailsBodyFarmNameMax = 120;
+
+export const updateBillingFarmerDetailsBodyGstinMax = 15;
+
+
+export const updateBillingFarmerDetailsBodyGstinRegExp = new RegExp('^[A-Za-z0-9]{15}$');
+export const updateBillingFarmerDetailsBodyBillingAddressMin = 5;
+export const updateBillingFarmerDetailsBodyBillingAddressMax = 500;
+
+export const updateBillingFarmerDetailsBodyStateMin = 2;
+export const updateBillingFarmerDetailsBodyStateMax = 80;
+
+export const updateBillingFarmerDetailsBodyPostalCodeRegExp = new RegExp('^[0-9]{6}$');
+export const updateBillingFarmerDetailsBodyContactPhoneMax = 24;
+
+export const updateBillingFarmerDetailsBodyNotesMax = 500;
+
+
+
+export const UpdateBillingFarmerDetailsBody = zod.object({
+  "farmerName": zod.string().min(updateBillingFarmerDetailsBodyFarmerNameMin).max(updateBillingFarmerDetailsBodyFarmerNameMax).optional(),
+  "farmName": zod.string().max(updateBillingFarmerDetailsBodyFarmNameMax).nullish(),
+  "gstin": zod.string().max(updateBillingFarmerDetailsBodyGstinMax).regex(updateBillingFarmerDetailsBodyGstinRegExp).nullish(),
+  "billingAddress": zod.string().min(updateBillingFarmerDetailsBodyBillingAddressMin).max(updateBillingFarmerDetailsBodyBillingAddressMax).optional(),
+  "state": zod.string().min(updateBillingFarmerDetailsBodyStateMin).max(updateBillingFarmerDetailsBodyStateMax).optional(),
+  "postalCode": zod.string().regex(updateBillingFarmerDetailsBodyPostalCodeRegExp).optional(),
+  "contactPhone": zod.string().max(updateBillingFarmerDetailsBodyContactPhoneMax).nullish(),
+  "contactEmail": zod.string().email().nullish(),
+  "notes": zod.string().max(updateBillingFarmerDetailsBodyNotesMax).nullish()
+})
+
+export const UpdateBillingFarmerDetailsResponse = zod.object({
+  "id": zod.number().int(),
+  "farmerName": zod.string(),
+  "farmName": zod.string().nullable(),
+  "gstin": zod.string().nullable(),
+  "billingAddress": zod.string(),
+  "state": zod.string(),
+  "postalCode": zod.string(),
+  "contactPhone": zod.string().nullable(),
+  "contactEmail": zod.string().nullable(),
+  "notes": zod.string().nullable(),
+  "createdAt": zod.coerce.date(),
+  "updatedAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete farmer billing details owned by the signed-in business
+ */
+export const DeleteBillingFarmerDetailsParams = zod.object({
+  "billingDetailsId": zod.coerce.number().int()
+})
+
+export const DeleteBillingFarmerDetailsResponse = zod.void()
 
 
 /**

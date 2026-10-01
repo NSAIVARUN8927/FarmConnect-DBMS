@@ -26,6 +26,28 @@ export interface Product {
   quality: string | null;
   /** @nullable */
   harvestDate: Date | null;
+  /**
+     * @maxLength 100
+     * @nullable
+     */
+  cropVariety: string | null;
+  /** @nullable */
+  plantingDate: Date | null;
+  /**
+     * @maxLength 120
+     * @nullable
+     */
+  cultivationMethod: string | null;
+  /**
+     * @maxLength 60
+     * @nullable
+     */
+  growthStage: string | null;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  storageNotes: string | null;
   /** @nullable */
   imageUrl: string | null;
   available: boolean;

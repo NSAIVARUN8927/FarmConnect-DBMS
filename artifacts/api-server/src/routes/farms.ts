@@ -11,6 +11,7 @@ import {
 } from "@workspace/api-zod";
 import { db, farmsTable } from "@workspace/db";
 import { forbidden, getCurrentUser, requireRole, unauthorized } from "../lib/auth";
+import { makeUploadedImagePrivate } from "../lib/object-uploads";
 
 const router: IRouter = Router();
 
@@ -44,6 +45,10 @@ router.post("/farms", async (req: Request, res: Response) => {
   if (!requireRole(user, ["farmer"])) return forbidden(res);
   const parsed = CreateFarmBody.safeParse(req.body);
   if (!parsed.success) return res.status(400).json({ error: "Invalid farm details" });
+  if (parsed.data.imageUrl && !(await makeUploadedImagePrivate(user, parsed.data.imageUrl))) {
+    res.status(400).json({ error: "The image must be uploaded to your own Farm Connect storage" });
+    return;
+  }
   const [farm] = await db.insert(farmsTable).values({
     ownerId: user.id,
     ...parsed.data,
@@ -62,6 +67,10 @@ router.patch("/farms/:farmId", async (req: Request, res: Response) => {
   const params = UpdateFarmParams.safeParse(req.params);
   const body = UpdateFarmBody.safeParse(req.body);
   if (!params.success || !body.success) return res.status(400).json({ error: "Invalid farm update" });
+  if (body.data.imageUrl && !(await makeUploadedImagePrivate(user, body.data.imageUrl))) {
+    res.status(400).json({ error: "The image must be uploaded to your own Farm Connect storage" });
+    return;
+  }
   const [farm] = await db.update(farmsTable)
     .set(body.data)
     .where(and(eq(farmsTable.id, params.data.farmId), eq(farmsTable.ownerId, user.id)))

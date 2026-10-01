@@ -80,6 +80,28 @@ export interface Product {
   quality: string | null;
   /** @nullable */
   harvestDate: string | null;
+  /**
+     * @maxLength 100
+     * @nullable
+     */
+  cropVariety: string | null;
+  /** @nullable */
+  plantingDate: string | null;
+  /**
+     * @maxLength 120
+     * @nullable
+     */
+  cultivationMethod: string | null;
+  /**
+     * @maxLength 60
+     * @nullable
+     */
+  growthStage: string | null;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  storageNotes: string | null;
   /** @nullable */
   imageUrl: string | null;
   available: boolean;
@@ -119,6 +141,28 @@ export interface ProductInput {
   harvestDate?: string | null;
   /** @nullable */
   imageUrl?: string | null;
+  /**
+     * @maxLength 100
+     * @nullable
+     */
+  cropVariety?: string | null;
+  /** @nullable */
+  plantingDate?: string | null;
+  /**
+     * @maxLength 120
+     * @nullable
+     */
+  cultivationMethod?: string | null;
+  /**
+     * @maxLength 60
+     * @nullable
+     */
+  growthStage?: string | null;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  storageNotes?: string | null;
 }
 
 export interface ProductUpdate {
@@ -154,7 +198,135 @@ export interface ProductUpdate {
   harvestDate?: string | null;
   /** @nullable */
   imageUrl?: string | null;
+  /**
+     * @maxLength 100
+     * @nullable
+     */
+  cropVariety?: string | null;
+  /** @nullable */
+  plantingDate?: string | null;
+  /**
+     * @maxLength 120
+     * @nullable
+     */
+  cultivationMethod?: string | null;
+  /**
+     * @maxLength 60
+     * @nullable
+     */
+  growthStage?: string | null;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  storageNotes?: string | null;
   available?: boolean;
+}
+
+export interface BillingFarmerDetails {
+  id: number;
+  farmerName: string;
+  /** @nullable */
+  farmName: string | null;
+  /** @nullable */
+  gstin: string | null;
+  billingAddress: string;
+  state: string;
+  postalCode: string;
+  /** @nullable */
+  contactPhone: string | null;
+  /** @nullable */
+  contactEmail: string | null;
+  /** @nullable */
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BillingFarmerDetailsInput {
+  /**
+     * @minLength 2
+     * @maxLength 120
+     */
+  farmerName: string;
+  /**
+     * @maxLength 120
+     * @nullable
+     */
+  farmName?: string | null;
+  /**
+     * @maxLength 15
+     * @nullable
+     * @pattern ^[A-Za-z0-9]{15}$
+     */
+  gstin?: string | null;
+  /**
+     * @minLength 5
+     * @maxLength 500
+     */
+  billingAddress: string;
+  /**
+     * @minLength 2
+     * @maxLength 80
+     */
+  state: string;
+  /** @pattern ^[0-9]{6}$ */
+  postalCode: string;
+  /**
+     * @maxLength 24
+     * @nullable
+     */
+  contactPhone?: string | null;
+  /** @nullable */
+  contactEmail?: string | null;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  notes?: string | null;
+}
+
+export interface BillingFarmerDetailsUpdate {
+  /**
+     * @minLength 2
+     * @maxLength 120
+     */
+  farmerName?: string;
+  /**
+     * @maxLength 120
+     * @nullable
+     */
+  farmName?: string | null;
+  /**
+     * @maxLength 15
+     * @nullable
+     * @pattern ^[A-Za-z0-9]{15}$
+     */
+  gstin?: string | null;
+  /**
+     * @minLength 5
+     * @maxLength 500
+     */
+  billingAddress?: string;
+  /**
+     * @minLength 2
+     * @maxLength 80
+     */
+  state?: string;
+  /** @pattern ^[0-9]{6}$ */
+  postalCode?: string;
+  /**
+     * @maxLength 24
+     * @nullable
+     */
+  contactPhone?: string | null;
+  /** @nullable */
+  contactEmail?: string | null;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  notes?: string | null;
 }
 
 export interface Farm {

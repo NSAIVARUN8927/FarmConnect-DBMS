@@ -21,6 +21,9 @@ import type {
 
 import type {
   BadRequestResponse,
+  BillingFarmerDetails,
+  BillingFarmerDetailsInput,
+  BillingFarmerDetailsUpdate,
   Conversation,
   ConversationInput,
   DashboardSummary,
@@ -1135,6 +1138,334 @@ export const useDeleteFarm = <TError = ErrorType<ForbiddenResponse | NotFoundRes
         TContext
       > => {
       return useMutation(getDeleteFarmMutationOptions(options));
+    }
+
+export const getListBillingFarmerDetailsUrl = () => {
+
+
+
+
+  return `/api/billing/farmer-details`
+}
+
+/**
+ * @summary List farmer billing details owned by the signed-in business
+ */
+export const listBillingFarmerDetails = async ( options?: Parameters<typeof customFetch>[1]): Promise<BillingFarmerDetails[]> => {
+
+  return customFetch<BillingFarmerDetails[]>(getListBillingFarmerDetailsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListBillingFarmerDetailsQueryKey = () => {
+    return [
+    `/api/billing/farmer-details`
+    ] as const;
+    }
+
+
+export const getListBillingFarmerDetailsQueryOptions = <TData = Awaited<ReturnType<typeof listBillingFarmerDetails>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listBillingFarmerDetails>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListBillingFarmerDetailsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listBillingFarmerDetails>>> = ({ signal }) => listBillingFarmerDetails({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listBillingFarmerDetails>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListBillingFarmerDetailsQueryResult = NonNullable<Awaited<ReturnType<typeof listBillingFarmerDetails>>>
+export type ListBillingFarmerDetailsQueryError = ErrorType<UnauthorizedResponse | ForbiddenResponse>
+
+
+/**
+ * @summary List farmer billing details owned by the signed-in business
+ */
+
+export function useListBillingFarmerDetails<TData = Awaited<ReturnType<typeof listBillingFarmerDetails>>, TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listBillingFarmerDetails>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListBillingFarmerDetailsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getCreateBillingFarmerDetailsUrl = () => {
+
+
+
+
+  return `/api/billing/farmer-details`
+}
+
+/**
+ * @summary Add a farmer billing contact for the signed-in business
+ */
+export const createBillingFarmerDetails = async (billingFarmerDetailsInput: BillingFarmerDetailsInput, options?: Parameters<typeof customFetch>[1]): Promise<BillingFarmerDetails> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<BillingFarmerDetails>(getCreateBillingFarmerDetailsUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(billingFarmerDetailsInput)
+  }
+);}
+
+
+
+
+
+export const getCreateBillingFarmerDetailsMutationKey = () => ['createBillingFarmerDetails'] as const;
+
+export const getCreateBillingFarmerDetailsMutationOptions = <TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createBillingFarmerDetails>>, TError,CreateBillingFarmerDetailsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof createBillingFarmerDetails>>, TError,CreateBillingFarmerDetailsMutationVariables, TContext> => {
+
+const mutationKey = getCreateBillingFarmerDetailsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof createBillingFarmerDetails>>, CreateBillingFarmerDetailsMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  createBillingFarmerDetails(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type CreateBillingFarmerDetailsMutationResult = NonNullable<Awaited<ReturnType<typeof createBillingFarmerDetails>>>
+    export type CreateBillingFarmerDetailsMutationBody = BodyType<BillingFarmerDetailsInput>
+    export type CreateBillingFarmerDetailsMutationError = ErrorType<UnauthorizedResponse | ForbiddenResponse>
+    export type CreateBillingFarmerDetailsMutationVariables = {data: BodyType<BillingFarmerDetailsInput>}
+
+    /**
+ * @summary Add a farmer billing contact for the signed-in business
+ */
+export const useCreateBillingFarmerDetails = <TError = ErrorType<UnauthorizedResponse | ForbiddenResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof createBillingFarmerDetails>>, TError,CreateBillingFarmerDetailsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof createBillingFarmerDetails>>,
+        TError,
+        CreateBillingFarmerDetailsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getCreateBillingFarmerDetailsMutationOptions(options));
+    }
+
+export const getUpdateBillingFarmerDetailsUrl = (billingDetailsId: number,) => {
+
+
+
+
+  return `/api/billing/farmer-details/${billingDetailsId}`
+}
+
+/**
+ * @summary Update farmer billing details owned by the signed-in business
+ */
+export const updateBillingFarmerDetails = async (billingDetailsId: number,
+    billingFarmerDetailsUpdate: BillingFarmerDetailsUpdate, options?: Parameters<typeof customFetch>[1]): Promise<BillingFarmerDetails> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<BillingFarmerDetails>(getUpdateBillingFarmerDetailsUrl(billingDetailsId),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(billingFarmerDetailsUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateBillingFarmerDetailsMutationKey = () => ['updateBillingFarmerDetails'] as const;
+
+export const getUpdateBillingFarmerDetailsMutationOptions = <TError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateBillingFarmerDetails>>, TError,UpdateBillingFarmerDetailsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateBillingFarmerDetails>>, TError,UpdateBillingFarmerDetailsMutationVariables, TContext> => {
+
+const mutationKey = getUpdateBillingFarmerDetailsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateBillingFarmerDetails>>, UpdateBillingFarmerDetailsMutationVariables> = (props) => {
+          const {billingDetailsId,data} = props ?? {};
+
+          return  updateBillingFarmerDetails(billingDetailsId,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateBillingFarmerDetailsMutationResult = NonNullable<Awaited<ReturnType<typeof updateBillingFarmerDetails>>>
+    export type UpdateBillingFarmerDetailsMutationBody = BodyType<BillingFarmerDetailsUpdate>
+    export type UpdateBillingFarmerDetailsMutationError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>
+    export type UpdateBillingFarmerDetailsMutationVariables = {billingDetailsId: number;data: BodyType<BillingFarmerDetailsUpdate>}
+
+    /**
+ * @summary Update farmer billing details owned by the signed-in business
+ */
+export const useUpdateBillingFarmerDetails = <TError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateBillingFarmerDetails>>, TError,UpdateBillingFarmerDetailsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateBillingFarmerDetails>>,
+        TError,
+        UpdateBillingFarmerDetailsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateBillingFarmerDetailsMutationOptions(options));
+    }
+
+export const getDeleteBillingFarmerDetailsUrl = (billingDetailsId: number,) => {
+
+
+
+
+  return `/api/billing/farmer-details/${billingDetailsId}`
+}
+
+/**
+ * @summary Delete farmer billing details owned by the signed-in business
+ */
+export const deleteBillingFarmerDetails = async (billingDetailsId: number, options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteBillingFarmerDetailsUrl(billingDetailsId),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteBillingFarmerDetailsMutationKey = () => ['deleteBillingFarmerDetails'] as const;
+
+export const getDeleteBillingFarmerDetailsMutationOptions = <TError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteBillingFarmerDetails>>, TError,DeleteBillingFarmerDetailsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteBillingFarmerDetails>>, TError,DeleteBillingFarmerDetailsMutationVariables, TContext> => {
+
+const mutationKey = getDeleteBillingFarmerDetailsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteBillingFarmerDetails>>, DeleteBillingFarmerDetailsMutationVariables> = (props) => {
+          const {billingDetailsId} = props ?? {};
+
+          return  deleteBillingFarmerDetails(billingDetailsId,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteBillingFarmerDetailsMutationResult = NonNullable<Awaited<ReturnType<typeof deleteBillingFarmerDetails>>>
+
+    export type DeleteBillingFarmerDetailsMutationError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>
+    export type DeleteBillingFarmerDetailsMutationVariables = {billingDetailsId: number}
+
+    /**
+ * @summary Delete farmer billing details owned by the signed-in business
+ */
+export const useDeleteBillingFarmerDetails = <TError = ErrorType<UnauthorizedResponse | ForbiddenResponse | NotFoundResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteBillingFarmerDetails>>, TError,DeleteBillingFarmerDetailsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteBillingFarmerDetails>>,
+        TError,
+        DeleteBillingFarmerDetailsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getDeleteBillingFarmerDetailsMutationOptions(options));
     }
 
 export const getGetDashboardUrl = () => {

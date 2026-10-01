@@ -22,3 +22,4 @@ export * from "./farms";
 export * from "./products";
 export * from "./commerce";
 export * from "./uploads";
+export * from "./billing-farmer-details";

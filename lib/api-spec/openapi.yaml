@@ -16,6 +16,8 @@ tags:
     description: Signed-in account operations
   - name: farms
     description: Farmer farm management
+  - name: billing
+    description: Business-owned farmer billing details
   - name: orders
     description: Buyer and farmer order lifecycle
   - name: negotiations
@@ -229,6 +231,71 @@ paths:
       summary: Delete a farm owned by the signed-in farmer
       responses:
         "204": { description: Farm deleted }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+  /billing/farmer-details:
+    get:
+      operationId: listBillingFarmerDetails
+      tags: [billing]
+      summary: List farmer billing details owned by the signed-in business
+      responses:
+        "200":
+          description: Business-owned farmer billing records
+          content:
+            application/json:
+              schema:
+                type: array
+                items: { $ref: "#/components/schemas/BillingFarmerDetails" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+    post:
+      operationId: createBillingFarmerDetails
+      tags: [billing]
+      summary: Add a farmer billing contact for the signed-in business
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BillingFarmerDetailsInput" }
+      responses:
+        "201":
+          description: Saved farmer billing details
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BillingFarmerDetails" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+  /billing/farmer-details/{billingDetailsId}:
+    parameters:
+      - in: path
+        name: billingDetailsId
+        required: true
+        schema: { type: integer }
+    patch:
+      operationId: updateBillingFarmerDetails
+      tags: [billing]
+      summary: Update farmer billing details owned by the signed-in business
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/BillingFarmerDetailsUpdate" }
+      responses:
+        "200":
+          description: Updated farmer billing details
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/BillingFarmerDetails" }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "403": { $ref: "#/components/responses/Forbidden" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    delete:
+      operationId: deleteBillingFarmerDetails
+      tags: [billing]
+      summary: Delete farmer billing details owned by the signed-in business
+      responses:
+        "204": { description: Billing details deleted }
+        "401": { $ref: "#/components/responses/Unauthorized" }
         "403": { $ref: "#/components/responses/Forbidden" }
         "404": { $ref: "#/components/responses/NotFound" }
   /dashboard:
@@ -526,10 +593,15 @@ components:
         organic: { type: boolean }
         quality: { type: ["string", "null"] }
         harvestDate: { type: ["string", "null"], format: date }
+        cropVariety: { type: ["string", "null"], maxLength: 100 }
+        plantingDate: { type: ["string", "null"], format: date }
+        cultivationMethod: { type: ["string", "null"], maxLength: 120 }
+        growthStage: { type: ["string", "null"], maxLength: 60 }
+        storageNotes: { type: ["string", "null"], maxLength: 500 }
         imageUrl: { type: ["string", "null"] }
         available: { type: boolean }
         createdAt: { type: string, format: date-time }
-      required: [id, farmId, farmerId, farmerName, farmName, name, category, description, unit, quantity, pricePerUnit, location, organic, quality, harvestDate, imageUrl, available, createdAt]
+      required: [id, farmId, farmerId, farmerName, farmName, name, category, description, unit, quantity, pricePerUnit, location, organic, quality, harvestDate, cropVariety, plantingDate, cultivationMethod, growthStage, storageNotes, imageUrl, available, createdAt]
     ProductInput:
       type: object
       properties:
@@ -545,6 +617,11 @@ components:
         quality: { type: ["string", "null"], maxLength: 80 }
         harvestDate: { type: ["string", "null"], format: date }
         imageUrl: { type: ["string", "null"], format: uri }
+        cropVariety: { type: ["string", "null"], maxLength: 100 }
+        plantingDate: { type: ["string", "null"], format: date }
+        cultivationMethod: { type: ["string", "null"], maxLength: 120 }
+        growthStage: { type: ["string", "null"], maxLength: 60 }
+        storageNotes: { type: ["string", "null"], maxLength: 500 }
       required: [name, category, description, unit, quantity, pricePerUnit, location, organic]
     ProductUpdate:
       type: object
@@ -561,7 +638,53 @@ components:
         quality: { type: ["string", "null"], maxLength: 80 }
         harvestDate: { type: ["string", "null"], format: date }
         imageUrl: { type: ["string", "null"], format: uri }
+        cropVariety: { type: ["string", "null"], maxLength: 100 }
+        plantingDate: { type: ["string", "null"], format: date }
+        cultivationMethod: { type: ["string", "null"], maxLength: 120 }
+        growthStage: { type: ["string", "null"], maxLength: 60 }
+        storageNotes: { type: ["string", "null"], maxLength: 500 }
         available: { type: boolean }
+    BillingFarmerDetails:
+      type: object
+      properties:
+        id: { type: integer }
+        farmerName: { type: string }
+        farmName: { type: ["string", "null"] }
+        gstin: { type: ["string", "null"] }
+        billingAddress: { type: string }
+        state: { type: string }
+        postalCode: { type: string }
+        contactPhone: { type: ["string", "null"] }
+        contactEmail: { type: ["string", "null"] }
+        notes: { type: ["string", "null"] }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+      required: [id, farmerName, farmName, gstin, billingAddress, state, postalCode, contactPhone, contactEmail, notes, createdAt, updatedAt]
+    BillingFarmerDetailsInput:
+      type: object
+      properties:
+        farmerName: { type: string, minLength: 2, maxLength: 120 }
+        farmName: { type: ["string", "null"], maxLength: 120 }
+        gstin: { type: ["string", "null"], maxLength: 15, pattern: "^[A-Za-z0-9]{15}$" }
+        billingAddress: { type: string, minLength: 5, maxLength: 500 }
+        state: { type: string, minLength: 2, maxLength: 80 }
+        postalCode: { type: string, pattern: "^[0-9]{6}$" }
+        contactPhone: { type: ["string", "null"], maxLength: 24 }
+        contactEmail: { type: ["string", "null"], format: email }
+        notes: { type: ["string", "null"], maxLength: 500 }
+      required: [farmerName, billingAddress, state, postalCode]
+    BillingFarmerDetailsUpdate:
+      type: object
+      properties:
+        farmerName: { type: string, minLength: 2, maxLength: 120 }
+        farmName: { type: ["string", "null"], maxLength: 120 }
+        gstin: { type: ["string", "null"], maxLength: 15, pattern: "^[A-Za-z0-9]{15}$" }
+        billingAddress: { type: string, minLength: 5, maxLength: 500 }
+        state: { type: string, minLength: 2, maxLength: 80 }
+        postalCode: { type: string, pattern: "^[0-9]{6}$" }
+        contactPhone: { type: ["string", "null"], maxLength: 24 }
+        contactEmail: { type: ["string", "null"], format: email }
+        notes: { type: ["string", "null"], maxLength: 500 }
     Farm:
       type: object
       properties:

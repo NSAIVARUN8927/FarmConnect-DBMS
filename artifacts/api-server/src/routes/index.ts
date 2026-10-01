@@ -8,6 +8,7 @@ import negotiationsRouter from "./negotiations";
 import messagesRouter from "./messages";
 import dashboardRouter from "./dashboard";
 import storageRouter from "./storage";
+import billingRouter from "./billing";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use(ordersRouter);
 router.use(negotiationsRouter);
 router.use(messagesRouter);
 router.use(storageRouter);
+router.use(billingRouter);
 
 export default router;

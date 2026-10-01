@@ -15,6 +15,7 @@ import {
 } from "@workspace/api-zod";
 import { db, farmsTable, ordersTable, productsTable, usersTable } from "@workspace/db";
 import { forbidden, getCurrentUser, requireRole, unauthorized } from "../lib/auth";
+import { makeUploadedImagePublic } from "../lib/object-uploads";
 
 const router: IRouter = Router();
 
@@ -39,6 +40,11 @@ function serializeProduct(
     organic: product.organic,
     quality: product.quality,
     harvestDate: product.harvestDate,
+    cropVariety: product.cropVariety,
+    plantingDate: product.plantingDate,
+    cultivationMethod: product.cultivationMethod,
+    growthStage: product.growthStage,
+    storageNotes: product.storageNotes,
     imageUrl: product.imageUrl,
     available: product.available,
     createdAt: product.createdAt,
@@ -131,13 +137,22 @@ router.post("/products", async (req: Request, res: Response) => {
       .where(and(eq(farmsTable.id, body.data.farmId), eq(farmsTable.ownerId, user.id))).limit(1);
     if (!farm) return res.status(400).json({ error: "Choose a farm you own" });
   }
-  const { harvestDate, ...productInput } = body.data;
+  if (body.data.imageUrl && !(await makeUploadedImagePublic(user, body.data.imageUrl))) {
+    res.status(400).json({ error: "The image must be uploaded to your own Farm Connect storage" });
+    return;
+  }
+  const { harvestDate, plantingDate, ...productInput } = body.data;
   const [product] = await db.insert(productsTable).values({
     farmerId: user.id,
     ...productInput,
     farmId: productInput.farmId ?? null,
     quality: productInput.quality ?? null,
     harvestDate: harvestDate ? harvestDate.toISOString().slice(0, 10) : null,
+    cropVariety: productInput.cropVariety ?? null,
+    plantingDate: plantingDate ? plantingDate.toISOString().slice(0, 10) : null,
+    cultivationMethod: productInput.cultivationMethod ?? null,
+    growthStage: productInput.growthStage ?? null,
+    storageNotes: productInput.storageNotes ?? null,
     imageUrl: productInput.imageUrl ?? null,
     description: productInput.description ?? "",
     unit: productInput.unit ?? "kg",
@@ -159,12 +174,22 @@ router.patch("/products/:productId", async (req: Request, res: Response) => {
       .where(and(eq(farmsTable.id, body.data.farmId), eq(farmsTable.ownerId, user.id))).limit(1);
     if (!farm) return res.status(400).json({ error: "Choose a farm you own" });
   }
+  if (body.data.imageUrl && !(await makeUploadedImagePublic(user, body.data.imageUrl))) {
+    res.status(400).json({ error: "The image must be uploaded to your own Farm Connect storage" });
+    return;
+  }
 
-  const { harvestDate, ...productChanges } = body.data;
+  const { harvestDate, plantingDate, ...productChanges } = body.data;
   const [updated] = await db.update(productsTable)
     .set(harvestDate === undefined
-      ? productChanges
-      : { ...productChanges, harvestDate: harvestDate ? harvestDate.toISOString().slice(0, 10) : null })
+      ? plantingDate === undefined
+        ? productChanges
+        : { ...productChanges, plantingDate: plantingDate ? plantingDate.toISOString().slice(0, 10) : null }
+      : {
+          ...productChanges,
+          harvestDate: harvestDate ? harvestDate.toISOString().slice(0, 10) : null,
+          ...(plantingDate === undefined ? {} : { plantingDate: plantingDate ? plantingDate.toISOString().slice(0, 10) : null }),
+        })
     .where(and(eq(productsTable.id, params.data.productId), eq(productsTable.farmerId, user.id)))
     .returning();
   if (!updated) return res.status(404).json({ error: "Product not found" });

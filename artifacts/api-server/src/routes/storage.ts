@@ -5,10 +5,12 @@ import {
 } from '@workspace/api-zod';
 import { Router, type IRouter, type Request, type Response } from 'express';
 import { getAuth } from '@clerk/express';
+import { db, uploadClaimsTable } from '@workspace/db';
 import {
   ObjectNotFoundError,
   ObjectStorageService,
 } from '../lib/objectStorage';
+import { forbidden, getCurrentUser, requireRole, unauthorized } from '../lib/auth';
 
 const router: IRouter = Router();
 const objectStorageService = new ObjectStorageService();
@@ -24,9 +26,13 @@ const objectStorageService = new ObjectStorageService();
 router.post(
   '/storage/uploads/request-url',
   async (req: Request, res: Response) => {
-    if (!getAuth(req).userId) {
-      res.status(401).json({ error: 'Unauthorized' });
-
+    const user = await getCurrentUser(req);
+    if (!user) {
+      unauthorized(res);
+      return;
+    }
+    if (!requireRole(user, ['farmer'])) {
+      forbidden(res);
       return;
     }
 
@@ -42,12 +48,18 @@ router.post(
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
       const objectPath =
         objectStorageService.normalizeObjectEntityPath(uploadURL);
+      await db.insert(uploadClaimsTable).values({
+        objectPath,
+        ownerId: user.id,
+        name,
+        size,
+        contentType,
+      }).onConflictDoNothing();
 
       res.json(
         RequestUploadUrlResponse.parse({
           uploadURL,
           objectPath,
-          metadata: { name, size, contentType },
         }),
       );
     } catch (error) {
@@ -111,20 +123,14 @@ router.get('/storage/objects/*path', async (req: Request, res: Response) => {
     const objectFile =
       await objectStorageService.getObjectEntityFile(objectPath);
 
-    // --- Protected route example (uncomment when using replit-auth) ---
-    // if (!req.isAuthenticated()) {
-    //   res.status(401).json({ error: "Unauthorized" });
-    //   return;
-    // }
-    // const canAccess = await objectStorageService.canAccessObjectEntity({
-    //   userId: req.user.id,
-    //   objectFile,
-    //   requestedPermission: ObjectPermission.READ,
-    // });
-    // if (!canAccess) {
-    //   res.status(403).json({ error: "Forbidden" });
-    //   return;
-    // }
+    const canAccess = await objectStorageService.canAccessObjectEntity({
+      userId: getAuth(req).userId ?? undefined,
+      objectFile,
+    });
+    if (!canAccess) {
+      res.status(403).json({ error: 'Forbidden' });
+      return;
+    }
 
     const response = await objectStorageService.downloadObject(objectFile);
 

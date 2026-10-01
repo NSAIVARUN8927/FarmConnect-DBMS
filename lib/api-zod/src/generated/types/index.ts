@@ -7,6 +7,9 @@
  */
 
 export * from './badRequestResponse';
+export * from './billingFarmerDetails';
+export * from './billingFarmerDetailsInput';
+export * from './billingFarmerDetailsUpdate';
 export * from './conversation';
 export * from './conversationInput';
 export * from './dashboardSummary';
