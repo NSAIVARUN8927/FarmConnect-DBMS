@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts",
+    "./mongo": "./src/mongo.ts",
     "./schema": "./src/schema/index.ts"
   },
   "scripts": {
@@ -14,6 +15,7 @@
   "dependencies": {
     "drizzle-orm": "catalog:",
     "drizzle-zod": "^0.8.3",
+    "mongodb": "^7.7.0",
     "pg": "^8.23.0",
     "zod": "catalog:"
   },
